@@ -37,14 +37,18 @@ public class ConsumerApp implements Runnable , IKafkaConfig {
         Map<String , Integer> topicCountMap = new HashMap<>();
         //可设置多个topic，表示客户端可以同时消费多个topic
         //当有多个partition时，可将线程数设置为与partition数量一致，一个线程消费一个partition
+        //如果thread数大于partition数量，则部分thread永远读取不到数据
+        //如果thread数小于partition数量，则部分thread会从多个partition中读取数据
         topicCountMap.put(topic , new Integer(1));
 
         Map<String, List<KafkaStream<byte[], byte[]>>> messageStreams = connector.createMessageStreams(topicCountMap);
         List<KafkaStream<byte[], byte[]>> kafkaStreams = messageStreams.get(topic);
+        int count = 0;
         for (KafkaStream<byte[] , byte[]> stream : kafkaStreams){
             ConsumerIterator<byte[], byte[]> iterator = stream.iterator();
             while (iterator.hasNext()){
                 MessageAndMetadata<byte[], byte[]> next = iterator.next();
+                count ++;
                 String topic = next.topic();
                 String key = null;
                 String message = null;
@@ -56,7 +60,7 @@ public class ConsumerApp implements Runnable , IKafkaConfig {
                 }
                 long offset = next.offset();
                 int partition = next.partition();
-                System.out.println("Consumer Topic : " + topic + " Key : " + key + " Value : " + message + " Offset : " + offset + " Partition : " + partition);
+                System.out.println("Consumer Topic : " + topic + " Key : " + key + " Value : " + message + " Offset : " + offset + " Partition : " + partition + " Total : " + count);
             }
         }
 
@@ -67,11 +71,12 @@ public class ConsumerApp implements Runnable , IKafkaConfig {
         properties.put("zookeeper.connect" , ZK_HOST);
         properties.put("metadata.broker.list" , KAFKA_BROKERS);
         //group 代表一个消费组
-        properties.put("group.id", "test-group");
+        properties.put("group.id", "test-group1");
         //zk连接配置
         properties.put("zookeeper.session.timeout.ms", "4000");
         properties.put("zookeeper.sync.time.ms", "200");
-        properties.put("auto.commit.interval.ms", "3000");
+//        properties.put("auto.commit.interval.ms", "3000");
+        properties.put("auto.commit.enable" , "false");
         properties.put("auto.offset.reset", "smallest");
         //序列化类
         properties.put("serializer.class", "kafka.serializer.StringEncoder");
@@ -80,7 +85,7 @@ public class ConsumerApp implements Runnable , IKafkaConfig {
 
     public static void main(String[] args) {
         System.out.println("启动消费线程...");
-        String topic = "HB-Test";
+        String topic = TOPIC;
         new ConsumerApp(topic).run();
     }
 

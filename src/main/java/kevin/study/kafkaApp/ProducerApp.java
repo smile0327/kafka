@@ -46,7 +46,7 @@ public class ProducerApp implements Runnable,IKafkaConfig{
 
     private KafkaProducer<String, String> createProducer(){
         Properties properties = new Properties();
-        properties.put("zookeeper.connect" , ZK_HOST);
+//        properties.put("zookeeper.connect" , ZK_HOST);
         properties.put("bootstrap.servers" , KAFKA_BROKERS);
         properties.put("serializer.class",DefaultEncoder.class.getName());
         properties.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
@@ -57,9 +57,9 @@ public class ProducerApp implements Runnable,IKafkaConfig{
 
     public static void main(String[] args) {
         System.out.println("生产线程启动...");
-        String topic = "HB-Test";
+        String topic = TOPIC;
         Random random = new Random();
-        for (int i = 0; i < 10 ; i++) {
+        for (int i = 0; i < 5 ; i++) {
             int index = random.nextInt(5);
             String key = "K";
             String value = "This is message ...";

@@ -10,7 +10,8 @@ package kevin.study.kafkaApp;
  */
 public interface IKafkaConfig {
 
-    public static final String ZK_HOST = "10.172.246.231:2181,10.172.246.232:2181,10.172.246.232:2181";
-    public static final String KAFKA_BROKERS = "10.172.246.231:9092,10.172.246.232:9092,10.172.246.232:9092";
+    public static final String ZK_HOST = "47.91.217.180:12181";
+    public static final String KAFKA_BROKERS = "10.172.246.77:9092";
+    public static final String TOPIC = "test";
 
 }
